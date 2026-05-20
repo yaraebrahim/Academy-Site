@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PBK Programming Academy - Interactive online coding classes for kids aged 6-16. Learn Programming, AI & Future Skills.">
+    <title>PBK Programming Academy | Online Kids Coding Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #2563eb;
+            --secondary-purple: #8b5cf6;
+            --accent-orange: #f97316;
+            --light-bg: #f8fafc;
+            --dark-bg: #0f172a;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --text-light: #1e293b;
+            --text-dark: #f1f5f9;
+            --gradient-1: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+        body.dark-mode { background: var(--dark-bg); color: var(--text-dark); }
+        body.rtl { direction: rtl; font-family: 'Cairo', sans-serif; }
+
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        .loader.hidden { opacity: 0; visibility: hidden; }
+        .loader-content { text-align: center; color: white; }
+        .loader-logo {
+            width: 150px; height: 150px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            animation: pulse 1.5s ease-in-out infinite;
+            overflow: hidden;
+        }
+        .loader-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .loader-text { font-size: 24px; font-weight: 700; margin-top: 20px; animation: fadeInOut 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+        @keyframes fadeInOut { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 5%;
+            background: rgba(255,255,255,0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        body.dark-mode .navbar { background: rgba(15,23,42,0.95); }
+        .navbar.scrolled { padding: 10px 5%; }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .logo-container { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; }
+        .logo-text {
+            font-size: 24px; font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        body.dark-mode .nav-links a { color: var(--text-dark); }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-controls { display: flex; gap: 15px; align-items: center; }
+        .theme-toggle, .lang-toggle {
+            background: var(--gradient-1);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .theme-toggle:hover, .lang-toggle:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(37,99,235,0.4); }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        body.dark-mode .mobile-menu-btn { color: var(--text-dark); }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 5% 80px;
+            background: var(--gradient-1);
+            overflow: hidden;
+        }
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+        @keyframes float {
+            0%,100%{transform:translate(0,0) rotate(0deg);}
+            25%{transform:translate(100px,-100px) rotate(90deg);}
+            50%{transform:translate(200px,-50px) rotate(180deg);}
+            75%{transform:translate(100px,50px) rotate(270deg);}
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 1200px;
+            color: white;
+        }
+        .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 20px; animation: fadeInUp 1s ease; line-height: 1.2; }
+        .hero-subtitle { font-size: 24px; margin-bottom: 40px; opacity: 0.95; animation: fadeInUp 1s ease 0.2s backwards; }
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+            animation: fadeInUp 1s ease 0.4s backwards;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--accent-orange); color: white; }
+        .btn-primary:hover { background: #ea580c; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(249,115,22,0.4); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        .btn-secondary:hover { background: white; color: var(--primary-blue); transform: translateY(-3px); }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            animation: fadeInUp 1s ease 0.6s backwards;
+            flex-wrap: wrap;
+        }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 800; display: block; margin-bottom: 5px; }
+        .stat-label { font-size: 16px; opacity: 0.9; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sections */
+        .section { padding: 100px 5%; max-width: 1400px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-subtitle { font-size: 20px; opacity: 0.8; }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .feature-card {
+            background: var(--card-light);
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        body.dark-mode .feature-card { background: var(--card-dark); }
+        .feature-card:hover { transform: translateY(-10px); border-color: var(--primary-blue); box-shadow: 0 15px 40px rgba(37,99,235,0.2); }
+        .feature-icon { font-size: 60px; margin-bottom: 20px; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .feature-title { font-size: 24px; font-weight: 700; margin-bottom: 15px; }
+        .feature-desc { font-size: 16px; opacity: 0.8; line-height: 1.6; }
+
+        /* Courses */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        .course-card {
+            background: var(--card-light);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        body.dark-mode .course-card { background: var(--card-dark); }
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .course-card:hover::before { transform: scaleX(1); }
+        .course-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(37,99,235,0.2); }
+        .course-card.popular {
+            box-shadow: 0 0 0 2px rgba(249,115,22,0.3), 0 0 0 5px rgba(139,92,246,0.2);
+            animation: glowPulse 2s infinite;
+        }
+        @keyframes glowPulse {
+            0%{box-shadow:0 0 0 0 rgba(249,115,22,0.4);}
+            70%{box-shadow:0 0 0 10px rgba(249,115,22,0);}
+            100%{box-shadow:0 0 0 0 rgba(249,115,22,0);}
+        }
+        .course-img { width: 100%; height: 180px; object-fit: cover; border-bottom: 3px solid var(--primary-blue); }
+        .course-body { padding: 20px 30px 30px; position: relative; }
+        .price-badge {
+            position: absolute;
+            top: -18px;
+            right: 20px;
+            background: var(--gradient-1);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+        body.rtl .price-badge { right: auto; left: 20px; }
+        .course-name { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+        .course-age { font-size: 16px; opacity: 0.9; background: rgba(37,99,235,0.1); display: inline-block; padding: 5px 12px; border-radius: 30px; }
+        .badge-group { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
+        .popular-badge { background: linear-gradient(135deg,#f59e0b,#ef4444); color: white; padding: 5px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        .beginner-badge { background: #10b981; color: white; padding: 5px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+        .course-desc { font-size: 15px; line-height: 1.6; margin-bottom: 20px; opacity: 0.8; }
+        .course-details { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+        .course-detail { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .course-detail i { color: var(--primary-blue); }
+        .course-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .course-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(37,99,235,0.3); }
+
+        /* Projects */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .project-card {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 250px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-1);
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .project-card:hover::before { opacity: 0.95; }
+        .project-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            padding: 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .project-icon { font-size: 60px; margin-bottom: 15px; }
+        .project-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+        .project-desc { font-size: 14px; opacity: 0.9; }
+
+        /* Testimonials */
+        .testimonials-container { max-width: 900px; margin: 0 auto; position: relative; }
+        .testimonial-card {
+            background: var(--card-light);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        body.dark-mode .testimonial-card { background: var(--card-dark); }
+        .testimonial-avatar {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+        .testimonial-text { font-size: 18px; line-height: 1.8; margin-bottom: 20px; font-style: italic; opacity: 0.9; }
+        .testimonial-author { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+        .testimonial-role { font-size: 14px; opacity: 0.7; margin-bottom: 15px; }
+        .stars { color: #fbbf24; font-size: 20px; }
+
+        /* Student Login Section */
+        .login-section {
+            background: var(--gradient-1);
+            padding: 80px 5%;
+            color: white;
+        }
+        .login-container { max-width: 550px; margin: 0 auto; }
+        .login-card {
+            background: rgba(255,255,255,0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: 45px 40px;
+            border-radius: 28px;
+            border: 2px solid rgba(255,255,255,0.25);
+            text-align: center;
+        }
+        .login-icon { font-size: 64px; margin-bottom: 20px; }
+        .login-card h2 { font-size: 32px; margin-bottom: 10px; }
+        .login-card p { margin-bottom: 30px; opacity: 0.9; }
+        .login-form .input-group { margin-bottom: 20px; text-align: left; }
+        .login-form label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        .login-form input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 60px;
+            color: white;
+            font-size: 16px;
+        }
+        .login-form input:focus { outline: none; border-color: white; background: rgba(255,255,255,0.25); }
+        .login-form input::placeholder { color: rgba(255,255,255,0.7); }
+        .login-btn {
+            width: 100%;
+            background: var(--accent-orange);
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .login-btn:hover { background: #ea580c; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .login-note { margin-top: 20px; font-size: 13px; opacity: 0.8; }
+
+        /* Registration Section (التسجيل) - Embedded Google Form */
+        .registration-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            padding: 80px 5%;
+        }
+        body.dark-mode .registration-section { background: var(--dark-bg); }
+        .reg-card {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-light);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.2);
+        }
+        body.dark-mode .reg-card { background: var(--card-dark); }
+        .reg-header {
+            background: var(--gradient-1);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        .reg-header h2 { font-size: 2rem; margin-bottom: 10px; }
+        .reg-header p { opacity: 0.9; }
+        .reg-form-container { padding: 30px; }
+        .reg-form-container iframe {
+            width: 100%;
+            height: 850px;
+            border: none;
+            border-radius: 20px;
+        }
+        @media (max-width: 700px) {
+            .reg-form-container iframe { height: 1100px; }
+            .hero-title { font-size: 36px; }
+            .hero-subtitle { font-size: 18px; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 300px; }
+            .section-title { font-size: 32px; }
+        }
+
+        /* Contact with circular icons */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        .contact-method {
+            background: var(--card-light);
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        body.dark-mode .contact-method { background: var(--card-dark); }
+        .contact-method:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(37,99,235,0.2); }
+        .contact-icon {
+            width: 90px;
+            height: 90px;
+            background: rgba(37,99,235,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 48px;
+            transition: all 0.3s ease;
+        }
+        .contact-method:hover .contact-icon { background: var(--gradient-1); color: white; transform: scale(1.05); }
+        .contact-icon.whatsapp { color: #25D366; }
+        .contact-icon.facebook { color: #1877F2; }
+        .contact-icon.email { color: var(--primary-blue); }
+        .contact-method:hover .contact-icon.whatsapp,
+        .contact-method:hover .contact-icon.facebook,
+        .contact-method:hover .contact-icon.email { color: white; }
+        .contact-label { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+        .contact-info { font-size: 16px; opacity: 0.8; }
+
+        /* FAQ */
+        .faq-container { max-width: 900px; margin: 0 auto; }
+        .faq-item {
+            background: var(--card-light);
+            margin-bottom: 15px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        body.dark-mode .faq-item { background: var(--card-dark); }
+        .faq-question {
+            padding: 25px 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .faq-question i { transition: transform 0.3s ease; color: var(--primary-blue); }
+        .faq-item.active .faq-question i { transform: rotate(180deg); }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        .faq-item.active .faq-answer { max-height: 500px; opacity: 1; padding: 0 30px 25px; }
+        .faq-answer p { line-height: 1.8; opacity: 0.8; }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-bg);
+            color: var(--text-dark);
+            padding: 60px 5% 30px;
+        }
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-section h3 { font-size: 22px; margin-bottom: 20px; color: white; }
+        .footer-section p, .footer-section a {
+            color: rgba(241,245,249,0.8);
+            line-height: 2;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        .footer-section a:hover { color: var(--accent-orange); transform: translateX(5px); }
+        body.rtl .footer-section a:hover { transform: translateX(-5px); }
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-link {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            color: white !important;
+            text-decoration: none;
+        }
+        .social-link:hover { background: var(--accent-orange); transform: translateY(-5px) !important; }
+        .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(241,245,249,0.6); }
+
+        /* Floating WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 5px 20px rgba(37,211,102,0.4);
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            animation: bounce 2s infinite;
+            text-decoration: none;
+        }
+        body.rtl .whatsapp-float { left: 30px; right: auto; }
+        .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 8px 30px rgba(37,211,102,0.6); }
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .courses-section-bg { background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(139,92,246,0.05) 100%); }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--card-light);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            body.dark-mode .nav-links { background: var(--card-dark); }
+            .nav-links.active { display: flex; }
+            .mobile-menu-btn { display: block; }
+            .logo-text { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-logo"><img src="academic logo.png" alt="PBK Academy Logo"></div>
+            <div class="loader-text">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo-container">
+                <img src="academic logo.png" alt="PBK Academy Logo" class="logo-img">
+                <span class="logo-text">PBK Academy</span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" data-en="Home" data-ar="الرئيسية">Home</a></li>
+                <li><a href="#why-us" data-en="Why Us" data-ar="لماذا نحن">Why Us</a></li>
+                <li><a href="#courses" data-en="Courses" data-ar="الكورسات">Courses</a></li>
+                <li><a href="#projects" data-en="Projects" data-ar="المشاريع">Projects</a></li>
+                <li><a href="#login" data-en="Login" data-ar="تسجيل الدخول">Login</a></li>
+                <li><a href="#registration" data-en="Register" data-ar="التسجيل">registration</a></li>
+                <li><a href="#contact" data-en="Contact" data-ar="تواصل معنا">Contact</a></li>
+            </ul>
+            <div class="nav-controls">
+                <button class="theme-toggle" id="themeToggle" aria-label="Dark mode toggle"><i class="fas fa-moon"></i></button>
+                <button class="lang-toggle" id="langToggle" aria-label="Language toggle"><span>عربي</span></button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="particles" id="particles"></div>
+        <div class="hero-content">
+            <h1 class="hero-title" data-en="Teach Your Child Computer, Programming & AI In A Fun Way" data-ar="علّم طفلك الكمبيوتر والبرمجة والذكاء الاصطناعي بطريقة ممتعة">Teach Your Child Computer, Programming & AI In A Fun Way</h1>
+            <p class="hero-subtitle" data-en="Interactive online coding classes for kids aged 6–18." data-ar="حصص برمجة تفاعلية أونلاين للأطفال من 6 إلى 18 سنة">Interactive online coding classes for kids aged 6–18.</p>
+            <div class="hero-buttons">
+                <a href="https://forms.gle/f7oggzgFEPjYdNf87" target="_blank" rel="noopener noreferrer" class="btn btn-primary" data-en="Register Now" data-ar="سجل الآن">Register Now</a>
+                <a href="#courses" class="btn btn-secondary" data-en="Explore Courses" data-ar="استكشف الكورسات">Explore Courses</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item"><span class="stat-number" data-count="500">0</span><span class="stat-number">+</span><span class="stat-label" data-en="Students" data-ar="طالب">Students</span></div>
+                <div class="stat-item"><span class="stat-number" data-count="50">0</span><span class="stat-number">+</span><span class="stat-label" data-en="Projects" data-ar="مشروع">Projects</span></div>
+                <div class="stat-item"><span class="stat-number" data-count="8">0</span><span class="stat-number">+</span><span class="stat-label" data-en="Courses" data-ar="كورس">Courses</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="section" id="why-us">
+        <div class="section-header reveal"><h2 class="section-title" data-en="Why Choose PBK Academy" data-ar="لماذا تختار أكاديمية PBK">Why Choose PBK Academy</h2><p class="section-subtitle" data-en="We provide the best learning experience for your children" data-ar="نوفر أفضل تجربة تعليمية لأطفالكم">We provide the best learning experience for your children</p></div>
+        <div class="features-grid">
+            <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-laptop-code"></i></div><h3 class="feature-title" data-en="Interactive Learning" data-ar="تعلم تفاعلي">Interactive Learning</h3><p class="feature-desc" data-en="Engaging lessons with hands-on projects and real-time feedback" data-ar="دروس تفاعلية مع مشاريع عملية وتغذية راجعة فورية">Engaging lessons with hands-on projects and real-time feedback</p></div>
+            <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-project-diagram"></i></div><h3 class="feature-title" data-en="Real Projects" data-ar="مشاريع حقيقية">Real Projects</h3><p class="feature-desc" data-en="Build games, websites, and AI applications from scratch" data-ar="ابنِ ألعاباً ومواقع وتطبيقات ذكاء اصطناعي من الصفر">Build games, websites, and AI applications from scratch</p></div>
+            <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-video"></i></div><h3 class="feature-title" data-en="Live Online Classes" data-ar="حصص مباشرة أونلاين">Live Online Classes</h3><p class="feature-desc" data-en="Connect with expert instructors from anywhere" data-ar="تواصل مع مدربين خبراء من أي مكان في العالم">Connect with expert instructors from anywhere</p></div>
+            <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-brain"></i></div><h3 class="feature-title" data-en="AI & Future Skills" data-ar="مهارات المستقبل والذكاء الاصطناعي">AI & Future Skills</h3><p class="feature-desc" data-en="Learn cutting-edge technologies that prepare for tomorrow" data-ar="تعلم تقنيات المستقبل التي تُحضّر لعالم الغد">Learn cutting-edge technologies that prepare for tomorrow</p></div>
+            <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-users"></i></div><h3 class="feature-title" data-en="Small Groups" data-ar="مجموعات صغيرة">Small Groups</h3><p class="feature-desc" data-en="Maximum 10 students per class for personalized attention" data-ar="حد أقصى 10 طلاب في الحصة لضمان اهتمام شخصي">Maximum 10 students per class for personalized attention</p></div>
+            <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-smile"></i></div><h3 class="feature-title" data-en="Fun Learning Environment" data-ar="بيئة تعلم ممتعة">Fun Learning Environment</h3><p class="feature-desc" data-en="Gamified curriculum that makes coding exciting" data-ar="منهج مُلعّب يجعل البرمجة مثيرة وممتعة">Gamified curriculum that makes coding exciting</p></div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="section courses-section-bg" id="courses">
+        <div class="section-header reveal"><h2 class="section-title" data-en="Our Courses" data-ar="كورساتنا">Our Courses</h2><p class="section-subtitle" data-en="Choose the perfect course for your child" data-ar="اختر الكورس المثالي لطفلك">Choose the perfect course for your child</p></div>
+        <div class="courses-grid">
+            <!-- 8 courses with enroll buttons opening Google Form -->
+            <!-- Scratch Junior -->
+<div class="course-card reveal">
+  <img src="scratch junior.jpg" class="course-img" alt="Scratch Junior course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>1500 EGP</span></div>
+    <div class="course-name" data-en="Scratch Junior" data-ar="سكراتش جونيور">Scratch Junior</div>
+    <div class="course-age" data-en="Ages 6-9" data-ar="العمر 6-9">Ages 6-9</div>
+    <div class="badge-group"><span class="beginner-badge"><i class="fas fa-seedling"></i> <span data-en="Beginner Friendly" data-ar="مناسب للمبتدئين">Beginner Friendly</span></span></div>
+    <p class="course-desc" data-en="Perfect introduction to coding for young learners" data-ar="مقدمة مثالية لتعلم البرمجة للصغار">Perfect introduction to coding for young learners</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="8 weeks" data-ar="8 أسابيع">8 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Beginner" data-ar="مبتدئ">Beginner</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in Scratch Junior" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+
+<!-- Introduction to Computers -->
+<div class="course-card reveal">
+  <img src="introduction to computers.jpg" class="course-img" alt="Introduction to Computers course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>1500 EGP</span></div>
+    <div class="course-name" data-en="Introduction to Computers" data-ar="مقدمة في الحاسب">Introduction to Computers</div>
+    <div class="course-age" data-en="Ages 6-9" data-ar="العمر 6-9">Ages 6-9</div>
+    <div class="badge-group"><span class="beginner-badge"><i class="fas fa-seedling"></i> <span data-en="Beginner Friendly" data-ar="مناسب للمبتدئين">Beginner Friendly</span></span></div>
+    <p class="course-desc" data-en="Learn computer basics, typing, and digital safety" data-ar="تعلم أساسيات الكمبيوتر والكتابة وأمان الإنترنت">Learn computer basics, typing, and digital safety</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="8 weeks" data-ar="8 أسابيع">8 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Beginner" data-ar="مبتدئ">Beginner</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in Introduction to Computers" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+
+<!-- Scratch Advanced -->
+<div class="course-card reveal">
+  <img src="scratch advanced.jpg" class="course-img" alt="Scratch Advanced course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>2000 EGP</span></div>
+    <div class="course-name" data-en="Scratch Advanced" data-ar="سكراتش متقدم">Scratch Advanced</div>
+    <div class="course-age" data-en="Ages 10-13" data-ar="العمر 10-13">Ages 10-13</div>
+    <p class="course-desc" data-en="Create interactive games and animations" data-ar="إنشاء ألعاب ورسوم متحركة تفاعلية">Create interactive games and animations</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="12 weeks" data-ar="12 أسبوع">12 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Intermediate" data-ar="متوسط">Intermediate</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in Scratch Advanced" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+
+<!-- ICDL Kids -->
+<div class="course-card reveal">
+  <img src="ICDL.jpg" class="course-img" alt="ICDL Kids course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>2000 EGP</span></div>
+    <div class="course-name" data-en="ICDL Kids" data-ar="ICDL للأطفال">ICDL Kids</div>
+    <div class="course-age" data-en="Ages 10-13" data-ar="العمر 10-13">Ages 10-13</div>
+    <div class="badge-group"><span class="beginner-badge"><i class="fas fa-seedling"></i> <span data-en="Beginner Friendly" data-ar="مناسب للمبتدئين">Beginner Friendly</span></span></div>
+    <p class="course-desc" data-en="International computer literacy certification" data-ar="شهادة دولية لمهارات الحاسب">International computer literacy certification</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="16 weeks" data-ar="16 أسبوع">16 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Beginner" data-ar="مبتدئ">Beginner</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in ICDL Kids" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+
+<!-- HTML & CSS -->
+<div class="course-card reveal">
+  <img src="HTML&CSS.jpg" class="course-img" alt="HTML & CSS course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>2300 EGP</span></div>
+    <div class="course-name" data-en="HTML & CSS" data-ar="HTML و CSS">HTML & CSS</div>
+    <div class="course-age" data-en="Ages 10-18" data-ar="العمر 10-18">Ages 10-18</div>
+    <div class="badge-group"><span class="beginner-badge"><i class="fas fa-seedling"></i> <span data-en="Beginner Friendly" data-ar="مناسب للمبتدئين">Beginner Friendly</span></span></div>
+    <p class="course-desc" data-en="Build beautiful websites" data-ar="بناء مواقع جميلة">Build beautiful websites</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="10 weeks" data-ar="10 أسابيع">10 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Beginner" data-ar="مبتدئ">Beginner</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in HTML & CSS" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+
+<!-- Python Basics -->
+<div class="course-card reveal popular">
+  <img src="python basics.jpg" class="course-img" alt="Python Basics course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>2500 EGP</span></div>
+    <div class="course-name" data-en="Python Basics" data-ar="أساسيات بايثون">Python Basics</div>
+    <div class="course-age" data-en="Ages 10-16" data-ar="العمر 10-16">Ages 10-16</div>
+    <div class="badge-group">
+      <span class="popular-badge"><i class="fas fa-star"></i> <span data-en="Most Popular" data-ar="الأكثر شعبية">Most Popular</span></span>
+      <span class="beginner-badge"><i class="fas fa-seedling"></i> <span data-en="Beginner Friendly" data-ar="مناسب للمبتدئين">Beginner Friendly</span></span>
+    </div>
+    <p class="course-desc" data-en="Learn the most popular programming language" data-ar="تعلم أشهر لغة برمجة">Learn the most popular programming language</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="10 weeks" data-ar="10 أسابيع">10 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Beginner" data-ar="مبتدئ">Beginner</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in Python Basics" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+
+<!-- Introduction to AI -->
+<div class="course-card reveal popular">
+  <img src="Introduction to AI.jpg" class="course-img" alt="Introduction to AI course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>3000 EGP</span></div>
+    <div class="course-name" data-en="Introduction to AI" data-ar="مقدمة في الذكاء الاصطناعي">Introduction to AI</div>
+    <div class="course-age" data-en="Ages 14-18" data-ar="العمر 14-18">Ages 14-18</div>
+    <div class="badge-group"><span class="popular-badge"><i class="fas fa-star"></i> <span data-en="Most Popular" data-ar="الأكثر شعبية">Most Popular</span></span></div>
+    <p class="course-desc" data-en="Explore artificial intelligence and neural networks" data-ar="استكشاف الذكاء الاصطناعي والشبكات العصبية">Explore artificial intelligence and neural networks</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="12 weeks" data-ar="12 أسبوع">12 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Advanced" data-ar="متقدم">Advanced</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in Introduction to AI" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+
+<!-- Python Advanced -->
+<div class="course-card reveal">
+  <img src="python.jpg" class="course-img" alt="Python Advanced course" onerror="this.src='academic logo.png'">
+  <div class="course-body">
+    <div class="price-badge"><i class="fas fa-tag"></i><span>2500 EGP</span></div>
+    <div class="course-name" data-en="Python Advanced" data-ar="بايثون متقدم">Python Advanced</div>
+    <div class="course-age" data-en="Ages 14-18" data-ar="العمر 14-18">Ages 14-18</div>
+    <p class="course-desc" data-en="Advanced Python with real-world applications" data-ar="بايثون متقدم مع تطبيقات عملية">Advanced Python with real-world applications</p>
+    <div class="course-details">
+      <span class="course-detail"><i class="fas fa-clock"></i> <span data-en="14 weeks" data-ar="14 أسبوع">14 weeks</span></span>
+      <span class="course-detail"><i class="fas fa-signal"></i> <span data-en="Advanced" data-ar="متقدم">Advanced</span></span>
+    </div>
+    <button class="course-btn" data-form-url="https://forms.gle/f7oggzgFEPjYdNf87" aria-label="Enroll in Python Advanced" data-en="Enroll Now" data-ar="سجل الآن">Enroll Now</button>
+  </div>
+</div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="section" id="projects">
+        <div class="section-header reveal"><h2 class="section-title" data-en="Student Projects" data-ar="مشاريع الطلاب">Student Projects</h2><p class="section-subtitle" data-en="Amazing projects created by our talented students" data-ar="مشاريع رائعة أنشأها طلابنا الموهوبون">Amazing projects created by our talented students</p></div>
+        <div class="projects-grid">
+            <div class="project-card reveal"><div class="project-content"><div class="project-icon">🎮</div><h3 class="project-title" data-en="Space Adventure Game" data-ar="لعبة مغامرة الفضاء">Space Adventure Game</h3><p class="project-desc" data-en="Interactive Scratch game with multiple levels" data-ar="لعبة سكراتش تفاعلية بمستويات متعددة">Interactive Scratch game with multiple levels</p></div></div>
+            <div class="project-card reveal"><div class="project-content"><div class="project-icon">🌐</div><h3 class="project-title" data-en="Personal Portfolio Website" data-ar="موقع ملف شخصي">Personal Portfolio Website</h3><p class="project-desc" data-en="Responsive website built with HTML & CSS" data-ar="موقع متجاوب مبني بـ HTML وCSS">Responsive website built with HTML & CSS</p></div></div>
+            <div class="project-card reveal"><div class="project-content"><div class="project-icon">🤖</div><h3 class="project-title" data-en="AI Chatbot" data-ar="روبوت محادثة ذكي">AI Chatbot</h3><p class="project-desc" data-en="Python AI assistant with natural language processing" data-ar="مساعد ذكاء اصطناعي بايثون بمعالجة لغة طبيعية">Python AI assistant with natural language processing</p></div></div>
+            <div class="project-card reveal"><div class="project-content"><div class="project-icon">🎨</div><h3 class="project-title" data-en="Digital Art Creator" data-ar="أداة إنشاء فن رقمي">Digital Art Creator</h3><p class="project-desc" data-en="Creative coding project with animations" data-ar="مشروع برمجة إبداعية مع رسوم متحركة">Creative coding project with animations</p></div></div>
+            <div class="project-card reveal"><div class="project-content"><div class="project-icon">📊</div><h3 class="project-title" data-en="Data Visualization Tool" data-ar="أداة تصور البيانات">Data Visualization Tool</h3><p class="project-desc" data-en="Python program to analyze and display data" data-ar="برنامج بايثون لتحليل وعرض البيانات">Python program to analyze and display data</p></div></div>
+            <div class="project-card reveal"><div class="project-content"><div class="project-icon">🎵</div><h3 class="project-title" data-en="Music Composer App" data-ar="تطبيق تأليف موسيقى">Music Composer App</h3><p class="project-desc" data-en="Interactive music creation with Scratch" data-ar="إنشاء موسيقى تفاعلي بسكراتش">Interactive music creation with Scratch</p></div></div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section">
+        <div class="section-header reveal"><h2 class="section-title" data-en="What Parents Say" data-ar="ماذا يقول الآباء">What Parents Say</h2><p class="section-subtitle" data-en="Success stories from our community" data-ar="قصص نجاح من مجتمعنا">Success stories from our community</p></div>
+        <div class="testimonials-container reveal">
+            <div class="testimonial-card"><div class="testimonial-avatar">👨</div><p class="testimonial-text" data-en="My son loves the classes! He's created three games already and is so excited about programming now." data-ar="ابني يحب الحصص! لقد أنشأ ثلاث ألعاب بالفعل وهو متحمس جداً للبرمجة الآن.">"My son loves the classes! He's created three games already and is so excited about programming now."</p><h4 class="testimonial-author" data-en="Ahmed Hassan" data-ar="أحمد حسن">Ahmed Hassan</h4><p class="testimonial-role" data-en="Parent of 10-year-old student" data-ar="ولي أمر طالب عمره 10 سنوات">Parent of 10-year-old student</p><div class="stars">⭐⭐⭐⭐⭐</div></div>
+        </div>
+    </section>
+
+    <!-- Student Login Section -->
+    <section class="login-section" id="login">
+        <div class="login-container">
+            <div class="login-card"><div class="login-icon"><i class="fas fa-graduation-cap"></i></div><h2 data-en="Student Login" data-ar="تسجيل دخول الطالب">Student Login</h2><p data-en="Access your courses and track your progress" data-ar="الوصول إلى كورساتك ومتابعة تقدمك">Access your courses and track your progress</p>
+            <form class="login-form" id="studentLoginForm"><div class="input-group"><label data-en="Email / Student ID" data-ar="البريد الإلكتروني / رقم الطالب">Email / Student ID</label><input type="text" placeholder="student@example.com" required></div><div class="input-group"><label data-en="Password" data-ar="كلمة المرور">Password</label><input type="password" placeholder="••••••••" required></div><button type="submit" class="login-btn" data-en="Login to Dashboard" data-ar="تسجيل الدخول إلى لوحة التحكم">Login to Dashboard</button><div class="login-note" data-en="Demo credentials? Contact support." data-ar="بيانات دخول تجريبية؟ اتصل بالدعم.">Demo credentials? Contact support.</div></form></div>
+        </div>
+    </section>
+
+    <!-- Registration Section (التسجيل) - Embedded Google Form with bilingual header -->
+    <section class="registration-section" id="registration">
+        <div class="reg-card">
+            <div class="reg-header">
+                <i class="fas fa-edit" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                <h2 data-en="Course Registration" data-ar="التسجيل في الكورسات">التسجيل في الكورسات</h2>
+                <p data-en="Fill out the form below to enroll in your desired course" data-ar="املأ النموذج أدناه للتسجيل في الكورس الذي ترغب فيه">املأ النموذج أدناه للتسجيل في الكورس الذي ترغب فيه</p>
+            </div>
+            <div class="reg-form-container">
+                <iframe src="https://forms.gle/f7oggzgFEPjYdNf87?embedded=true" title="Registration Form" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section">
+        <div class="section-header reveal"><h2 class="section-title" data-en="Frequently Asked Questions" data-ar="الأسئلة الشائعة">Frequently Asked Questions</h2><p class="section-subtitle" data-en="Find answers to common questions" data-ar="اعثر على إجابات للأسئلة الشائعة">Find answers to common questions</p></div>
+        <div class="faq-container">
+            <div class="faq-item reveal"><div class="faq-question"><span data-en="What ages do you teach?" data-ar="ما الأعمار التي تدرّسونها؟">What ages do you teach?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><p data-en="We teach kids aged 6-18 years old, with courses designed specifically for each age group." data-ar="ندرّس الأطفال من 6 إلى 18 عاماً، مع كورسات مصممة خصيصاً لكل فئة عمرية.">We teach kids aged 6-18 years old, with courses designed specifically for each age group.</p></div></div>
+            <div class="faq-item reveal"><div class="faq-question"><span data-en="Do I need prior coding experience?" data-ar="هل أحتاج إلى خبرة برمجية سابقة؟">Do I need prior coding experience?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><p data-en="Not at all! We have beginner courses perfect for kids with no experience." data-ar="إطلاقاً! لدينا كورسات للمبتدئين مثالية للأطفال بدون خبرة.">Not at all! We have beginner courses perfect for kids with no experience.</p></div></div>
+            <div class="faq-item reveal"><div class="faq-question"><span data-en="What do I need for online classes?" data-ar="ماذا أحتاج للحصص الأونلاين؟">What do I need for online classes?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><p data-en="A computer or laptop with internet connection, microphone, and camera." data-ar="حاسوب أو لابتوب مع اتصال إنترنت وميكروفون وكاميرا.">A computer or laptop with internet connection, microphone, and camera.</p></div></div>
+            <div class="faq-item reveal"><div class="faq-question"><span data-en="How many students per class?" data-ar="كم عدد الطلاب في الحصة؟">How many students per class?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><p data-en="Maximum 10 students per class to ensure personalized attention." data-ar="حد أقصى 10 طلاب في الحصة لضمان اهتمام شخصي.">Maximum 10 students per class to ensure personalized attention.</p></div></div>
+            <div class="faq-item reveal"><div class="faq-question"><span data-en="Is there a free trial?" data-ar="هل يوجد حصة تجريبية مجانية؟">Is there a free trial?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><p data-en="Yes! We offer a completely free demo class so your child can try before committing." data-ar="نعم! نقدم حصة تجريبية مجانية بالكامل حتى يتمكن طفلك من التجربة قبل الالتزام.">Yes! We offer a completely free demo class so your child can try before committing.</p></div></div>
+        </div>
+    </section>
+
+    <!-- Contact Section with Circular Icons -->
+    <section class="section" id="contact">
+        <div class="section-header reveal"><h2 class="section-title" data-en="Get In Touch" data-ar="تواصل معنا">Get In Touch</h2><p class="section-subtitle" data-en="We're here to help you get started" data-ar="نحن هنا لمساعدتك على البدء">We're here to help you get started</p></div>
+        <div class="contact-grid">
+            <a href="https://chat.whatsapp.com/DQ3TCkkVsLY6c5awQMy2c9" class="contact-method reveal" target="_blank" rel="noopener noreferrer"><div class="contact-icon whatsapp"><i class="fab fa-whatsapp"></i></div><h3 class="contact-label" data-en="WhatsApp" data-ar="واتساب">WhatsApp</h3><p class="contact-info" data-en="Join our group" data-ar="انضم إلى مجموعتنا">Join our group</p></a>
+            <a href="https://www.facebook.com/profile.php?id=61590253014524&sk=followers" class="contact-method reveal" target="_blank" rel="noopener noreferrer"><div class="contact-icon facebook"><i class="fab fa-facebook"></i></div><h3 class="contact-label" data-en="Facebook" data-ar="فيسبوك">Facebook</h3><p class="contact-info" data-en="Follow us" data-ar="تابعنا">Follow us</p></a>
+            <a href="mailto:pbkprogrammingacademy@gmail.com" class="contact-method reveal"><div class="contact-icon email"><i class="fas fa-envelope"></i></div><h3 class="contact-label" data-en="Email" data-ar="البريد الإلكتروني">Email</h3><p class="contact-info">pbkprogrammingacademy@gmail.com</p></a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content"><div class="footer-section"><img src="academic logo.png" alt="PBK Academy Logo" style="width:80px; border-radius:20px; margin-bottom:20px;"><p data-en="Empowering the next generation of programmers and innovators." data-ar="تمكين الجيل القادم من المبرمجين والمبتكرين.">Empowering the next generation of programmers and innovators.</p><div class="social-links"><a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook"></i></a><a href="#" class="social-link" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a><a href="#" class="social-link" aria-label="Email"><i class="fas fa-envelope"></i></a></div></div><div class="footer-section"><h3 data-en="Quick Links" data-ar="روابط سريعة">Quick Links</h3><a href="#home" data-en="Home" data-ar="الرئيسية">Home</a><a href="#why-us" data-en="Why Us" data-ar="لماذا نحن">Why Us</a><a href="#courses" data-en="Courses" data-ar="الكورسات">Courses</a><a href="#projects" data-en="Projects" data-ar="المشاريع">Projects</a><a href="#contact" data-en="Contact" data-ar="تواصل معنا">Contact</a></div><div class="footer-section"><h3 data-en="Popular Courses" data-ar="الكورسات الشائعة">Popular Courses</h3><a href="#courses" data-en="Scratch Junior" data-ar="سكراتش جونيور">Scratch Junior</a><a href="#courses" data-en="Python Basics" data-ar="أساسيات بايثون">Python Basics</a><a href="#courses" data-en="HTML & CSS" data-ar="HTML وCSS">HTML & CSS</a><a href="#courses" data-en="Introduction to AI" data-ar="مقدمة في الذكاء الاصطناعي">Introduction to AI</a></div><div class="footer-section"><h3 data-en="Contact Info" data-ar="معلومات التواصل">Contact Info</h3><p>📧 pbkprogrammingacademy@gmail.com</p><p data-en="🌍 Online Worldwide" data-ar="🌍 أونلاين عالمياً">🌍 Online Worldwide</p></div></div>
+        <div class="footer-bottom"><p data-en="© 2026 PBK Programming Academy. All rights reserved." data-ar="© 2026 أكاديمية PBK للبرمجة. جميع الحقوق محفوظة.">© 2026 PBK Programming Academy. All rights reserved.</p></div>
+    </footer>
+
+    <!-- Floating WhatsApp -->
+    <a href="https://chat.whatsapp.com/DQ3TCkkVsLY6c5awQMy2c9" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Contact us on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
+    <script>
+        window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('hidden'), 800));
+        function createParticles() {
+            const container = document.getElementById('particles');
+            if(!container) return;
+            for(let i=0;i<50;i++){const p=document.createElement('div');p.className='particle';p.style.width=Math.random()*10+5+'px';p.style.height=p.style.width;p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*20+'s';p.style.animationDuration=Math.random()*10+15+'s';container.appendChild(p);}
+        }
+        createParticles();
+        const navbar=document.getElementById('navbar');
+        window.addEventListener('scroll',()=>{window.scrollY>50?navbar.classList.add('scrolled'):navbar.classList.remove('scrolled');});
+        const mobileBtn=document.getElementById('mobileMenuBtn'),navLinks=document.getElementById('navLinks');
+        mobileBtn.addEventListener('click',()=>navLinks.classList.toggle('active'));
+        document.querySelectorAll('.nav-links a').forEach(l=>l.addEventListener('click',()=>navLinks.classList.remove('active')));
+        let isDark=false,isArabic=false;
+        const themeToggle=document.getElementById('themeToggle'),langToggle=document.getElementById('langToggle');
+        themeToggle.addEventListener('click',()=>{isDark=!isDark;document.body.classList.toggle('dark-mode');themeToggle.innerHTML=isDark?'<i class="fas fa-sun"></i>':'<i class="fas fa-moon"></i>';});
+        function updateLang(){
+            document.querySelectorAll('[data-en]').forEach(el=>{
+                const txt=isArabic?el.getAttribute('data-ar'):el.getAttribute('data-en');
+                if(txt && (el.tagName!=='INPUT' && el.tagName!=='TEXTAREA' && el.tagName!=='IFRAME')) el.textContent=txt;
+            });
+            // Also update placeholder attributes if any
+            document.querySelectorAll('[data-placeholder-en]').forEach(el=>{
+                const placeholder=isArabic?el.getAttribute('data-placeholder-ar'):el.getAttribute('data-placeholder-en');
+                if(placeholder) el.placeholder=placeholder;
+            });
+        }
+        langToggle.addEventListener('click',()=>{isArabic=!isArabic;document.body.classList.toggle('rtl');document.documentElement.setAttribute('dir',isArabic?'rtl':'ltr');langToggle.innerHTML=isArabic?'<span>English</span>':'<span>عربي</span>';updateLang();});
+        function animateCounter(el){let target=parseInt(el.getAttribute('data-count')),current=0,step=target/60,timer=setInterval(()=>{current+=step;if(current>=target){el.textContent=target;clearInterval(timer);}else el.textContent=Math.floor(current);},30);}
+        let counted=false;
+        function checkCounters(){if(!counted&&document.querySelector('.hero-stats')?.getBoundingClientRect().top<window.innerHeight){counted=true;document.querySelectorAll('.stat-number[data-count]').forEach(animateCounter);}}
+        window.addEventListener('scroll',checkCounters);checkCounters();
+        function reveal(){document.querySelectorAll('.reveal').forEach(el=>{if(el.getBoundingClientRect().top<window.innerHeight-150)el.classList.add('active');});}
+        window.addEventListener('scroll',reveal);reveal();
+        document.querySelectorAll('.faq-item').forEach(item=>{item.querySelector('.faq-question').addEventListener('click',()=>{const active=item.classList.contains('active');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('active'));if(!active)item.classList.add('active');});});
+        document.querySelectorAll('.course-btn').forEach(btn=>{btn.addEventListener('click',(e)=>{e.preventDefault();window.open(btn.getAttribute('data-form-url')||'https://forms.gle/f7oggzgFEPjYdNf87','_blank');});});
+        document.getElementById('studentLoginForm')?.addEventListener('submit',(e)=>{e.preventDefault();alert('Student portal coming soon! For now, please contact us via WhatsApp or email.');});
+        document.querySelectorAll('a[href^="#"]').forEach(anchor=>{anchor.addEventListener('click',function(e){const targetId=this.getAttribute('href');if(targetId==="#")return;const target=document.querySelector(targetId);if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth'});}});});
+    </script>
+</body>
+</html>
